@@ -104,7 +104,7 @@ function finity:addShadow(object, transparency)
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
 		Position = UDim2.new(0.5, 0, 0.5, 4),
-		Size = UDim2.new(1, 2, 1, 2),
+		Size = UDim2.new(1, 7, 1, 7),
 		Image = "rbxassetid://1316045217",
 		ImageTransparency = transparency and true or 0.5,
 		ImageColor3 = Color3.fromRGB(35, 35, 35),
