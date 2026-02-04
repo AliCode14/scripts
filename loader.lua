@@ -6,7 +6,8 @@ local scriptsByPlaceId = {
 }
 
 local placeId = game.PlaceId
-local scriptUrl = scriptsByPlaceId[placeId]
+local gameId = game.GameId
+local scriptUrl = scriptsByPlaceId[placeId] or scriptsByPlaceId[gameId]
 
 if scriptUrl then
 	loadstring(game:HttpGet(scriptUrl))()
