@@ -1,10 +1,19 @@
--- Auto Impel Down Script (extrait depuis script.lua)
 
--- Variables et fonctions nécessaires
+-- Load Fluent UI (placé tout en haut)
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Window = Fluent:CreateWindow({
+    Title = "Auto Impel Down",
+    SubTitle = "by ali95z",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(520, 420),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl,
+    CloseKey = Enum.KeyCode.LeftControl
+})
+local Tab = Window:AddTab({ Title = "Auto Impel Down", Icon = "target" })
 
--- Auto Impel Down complet
--- Extraction et adaptation depuis script.lua
-
+-- Variables et fonctions nécessaires (placées après Fluent UI)
 local player = game.Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -103,22 +112,6 @@ function firesignal(signal)
         signal:Invoke()
     end
 end
-
--- Auto Impel Down GUI & Logic
-
--- Load Fluent UI
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local Window = Fluent:CreateWindow({
-    Title = "Auto Impel Down",
-    SubTitle = "by ali95z",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(520, 420),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl,
-    CloseKey = Enum.KeyCode.LeftControl
-})
-local Tab = Window:AddTab({ Title = "Auto Impel Down", Icon = "target" })
 
 
 getgenv().LoadedAnticheatBypass = false
