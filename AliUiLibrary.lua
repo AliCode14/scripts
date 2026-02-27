@@ -1414,3 +1414,6 @@ function AliLibrary:CreateWindow(config)
 
     return Window
 end
+
+-- Ensure the library table is returned when the file is loaded via `loadstring`/`HttpGet`
+return AliLibrary
