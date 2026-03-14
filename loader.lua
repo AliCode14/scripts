@@ -5,8 +5,7 @@ local scriptsByPlaceId = {
 	[6811831486] = "https://raw.githubusercontent.com/AliCode14/scripts/refs/heads/main/GpoKaitun.lua",
 	[7465136166] = "https://raw.githubusercontent.com/AliCode14/scripts/refs/heads/main/GpoKaitun.lua",
 	[120135584963579] = "https://raw.githubusercontent.com/AliCode14/scripts/refs/heads/main/DontStealALabubu.lua",
-	[131623223084840] = "https://raw.githubusercontent.com/AliCode14/scripts/refs/heads/main/EscapeTusnamiForBrainrots!.lua",
-	[101640913672688] = "https://raw.githubusercontent.com/AliCode14/scripts/refs/heads/main/AnimeGhosts.lua",
+	[9363735110] = "https://raw.githubusercontent.com/AliCode14/scripts/refs/heads/main/EscapeTusnamiForBrainrots!.lua",
 }
 
 local placeId = game.PlaceId
