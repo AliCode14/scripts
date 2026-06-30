@@ -1,3 +1,9 @@
+while task.wait(1) do
+		pcall(function()
+    	getconnections(game.Players.LocalPlayer.Idled)[1]:Disconnect()
+    end)
+end
+
 -- This script was generated using the MoonVeil Obfuscator v1.4.5 [https://moonveil.cc]
 
 local Ra,O,wa,Kd,ze,Sa=type,pairs,bit32.bxor,getmetatable
