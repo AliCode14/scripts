@@ -1,6 +1,4 @@
 -- Script UI Library
--- Hosted separately so the Pet Simulator 99 script stays under Luau's local-register limit.
-
 repeat task.wait() until game:IsLoaded()
 
 -- Constantes restaurees depuis la version decompilee.
