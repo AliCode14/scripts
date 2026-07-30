@@ -1,4 +1,4 @@
--- Glowy Modern UI Library
+
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
@@ -398,13 +398,15 @@ function Section:AddInput(options)
     local holder = create("Frame", {
         Parent = row, AnchorPoint = Vector2.new(1, .5), Position = UDim2.new(1, -12, .5, 0),
         Size = UDim2.new(.52, 0, 0, 28), BackgroundColor3 = Theme.Background, BorderSizePixel = 0,
+        ClipsDescendants = true,
     }, {corner(7), stroke(Theme.Stroke, .35)})
     local holderScale = create("UIScale", {Parent = holder, Scale = 1})
     local box = create("TextBox", {
         Parent = holder, BackgroundTransparency = 1, Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -20, 1, 0),
         ClearTextOnFocus = false, FontFace = Fonts.Regular, PlaceholderText = options.Placeholder or "Type here...",
         PlaceholderColor3 = Theme.Muted, Text = options.Default or "", TextColor3 = Theme.Text, TextSize = 13,
-        TextXAlignment = Enum.TextXAlignment.Left,
+        TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd,
+        TextWrapped = false, MultiLine = false,
     })
     box.Focused:Connect(function()
         tween(holder:FindFirstChildOfClass("UIStroke"), .16, {Color = Theme.Text, Transparency = 0})
@@ -1620,13 +1622,15 @@ function Noir:CreateWindow(options)
                 mobileButton.Position.X.Scale * viewport.X + mobileButton.Position.X.Offset,
                 mobileButton.Position.Y.Scale * viewport.Y + mobileButton.Position.Y.Offset
             )
-            mobileDragging, mobileStart, mobilePosition, mobileMoved = true, input.Position, center, false
+            mobileDragging, mobileStart, mobilePosition, mobileMoved =
+                true, Vector2.new(input.Position.X, input.Position.Y), center, false
             tween(mobileScale, .1, {Scale = .9})
         end
     end)
     UserInputService.InputChanged:Connect(function(input)
         if mobileDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - mobileStart
+            local currentInputPosition = Vector2.new(input.Position.X, input.Position.Y)
+            local delta = currentInputPosition - mobileStart
             mobileMoved = mobileMoved or delta.Magnitude > 5
             local camera = workspace.CurrentCamera
             local viewport = camera and camera.ViewportSize or Vector2.new(1920, 1080)
