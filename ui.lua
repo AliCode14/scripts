@@ -83,6 +83,9 @@ local function stroke(color, transparency, thickness)
 end
 
 local function tween(object, duration, properties, style, direction)
+    if typeof(object) ~= "Instance" or object.Parent == nil then
+        return nil
+    end
     local animation = TweenService:Create(object, TweenInfo.new(
         duration or .18,
         style or Enum.EasingStyle.Quart,
