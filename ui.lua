@@ -1,4 +1,4 @@
-
+-- Glowy Modern UI Library
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
@@ -271,7 +271,7 @@ function Section:AddButton(options)
     })
     local title = textLabel(button, options.Title or "Button", UDim2.new(1, -52, 1, 0))
     title.Position = UDim2.fromOffset(13, 0)
-    local arrow = textLabel(button, ">", UDim2.fromOffset(30, 46), Theme.Muted)
+    local arrow = textLabel(button, "›", UDim2.fromOffset(30, 46), Theme.Muted)
     arrow.Position, arrow.TextSize, arrow.TextXAlignment = UDim2.new(1, -38, 0, -3), 21, Enum.TextXAlignment.Center
     button.MouseEnter:Connect(function() tween(row, .16, {BackgroundColor3 = Color3.fromRGB(34, 38, 50)}) end)
     button.MouseLeave:Connect(function() tween(row, .16, {BackgroundColor3 = Theme.Surface2}) end)
@@ -1209,6 +1209,9 @@ end
 
 function Noir:CreateWindow(options)
     options = options or {}
+    local requestedSize = options.Size or UDim2.fromOffset(650, 520)
+    local requestedWidth = requestedSize.X.Offset > 0 and requestedSize.X.Offset or 650
+    local requestedHeight = requestedSize.Y.Offset > 0 and requestedSize.Y.Offset or 520
     local parent = options.Parent
     if not parent then
         local ok, hui = pcall(function() return gethui() end)
@@ -1219,13 +1222,13 @@ function Noir:CreateWindow(options)
     local gui = create("ScreenGui", {Name = "NoirUI", Parent = parent, ResetOnSpawn = false, IgnoreGuiInset = true, ZIndexBehavior = Enum.ZIndexBehavior.Sibling})
     local shadow = create("ImageLabel", {
         Parent = gui, AnchorPoint = Vector2.new(.5, .5), Position = UDim2.fromScale(.5, .5),
-        Size = UDim2.fromOffset(646, 526), BackgroundTransparency = 1,
+        Size = UDim2.fromOffset(requestedWidth + 46, requestedHeight + 46), BackgroundTransparency = 1,
         Image = "rbxassetid://6014261993", ImageColor3 = Color3.new(0, 0, 0), ImageTransparency = .45, ScaleType = Enum.ScaleType.Slice, SliceCenter = Rect.new(49, 49, 450, 450),
     })
     local main = create("Frame", {
         Name = "Window",
         Parent = gui, AnchorPoint = Vector2.new(.5, .5), Position = UDim2.fromScale(.5, .5),
-        Size = UDim2.fromOffset(650, 520), BackgroundColor3 = Theme.Background, BorderSizePixel = 0,
+        Size = requestedSize, BackgroundColor3 = Theme.Background, BorderSizePixel = 0,
         ClipsDescendants = true, Active = true,
     }, {corner(14), stroke(Theme.Stroke, .25)})
     create("UIGradient", {Parent = main, Color = ColorSequence.new({
@@ -1333,7 +1336,10 @@ function Noir:CreateWindow(options)
             targetScale = math.clamp(math.min(designScale, availableScale), .72, designScale)
         end
         if window and window.Visible and not window.Transitioning then uiScale.Scale = targetScale end
-        shadow.Size = UDim2.fromOffset(math.floor(698 * targetScale), math.floor(568 * targetScale))
+        shadow.Size = UDim2.fromOffset(
+            math.floor((requestedWidth + 48) * targetScale),
+            math.floor((requestedHeight + 48) * targetScale)
+        )
         task.defer(function()
             if clampMobileToViewport then clampMobileToViewport() end
         end)
@@ -1341,8 +1347,16 @@ function Noir:CreateWindow(options)
     window = {
         Gui = gui, Main = main, Shadow = shadow, Tabs = {}, CurrentTab = nil,
         Visible = true, Transitioning = false, Controls = {}, ThemeName = options.Theme or "Default",
-        LockSize = lockSize,
+        LockSize = lockSize, Compact = options.Compact == true,
     }
+    if window.Compact then
+        sidebar.Visible = false
+        content.Position = UDim2.fromOffset(0, 0)
+        content.Size = UDim2.fromScale(1, 1)
+        pages.Position = UDim2.fromOffset(5, 5)
+        pages.Size = UDim2.new(1, -10, 1, -10)
+        close.Visible = false
+    end
     function window:_Register(flag, control, kind)
         flag = tostring(flag)
         self.Controls[flag] = {Control = control, Kind = kind}
@@ -1467,12 +1481,18 @@ function Noir:CreateWindow(options)
         return true
     end
 
-    local configFolder = options.ConfigFolder or "NoirUI"
+    local configFolder = options.ConfigFolder or "Script Hub/Universal"
     local configDirectory = configFolder .. "/configs"
     local autoLoadPath = configFolder .. "/autoload.txt"
     local function ensureConfigFolders()
         if type(makefolder) ~= "function" then return end
-        if type(isfolder) ~= "function" or not isfolder(configFolder) then pcall(makefolder, configFolder) end
+        local currentPath = ""
+        for folderName in configFolder:gmatch("[^/\\]+") do
+            currentPath = currentPath == "" and folderName or (currentPath .. "/" .. folderName)
+            if type(isfolder) ~= "function" or not isfolder(currentPath) then
+                pcall(makefolder, currentPath)
+            end
+        end
         if type(isfolder) ~= "function" or not isfolder(configDirectory) then pcall(makefolder, configDirectory) end
     end
     local function cleanConfigName(name)
@@ -1850,6 +1870,12 @@ function Noir:CreateWindow(options)
             Parent = columns, BackgroundTransparency = 1, Size = UDim2.new(.5, -7, 0, 0),
             AutomaticSize = Enum.AutomaticSize.Y,
         }, {create("UIListLayout", {Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder})})
+        if window.Compact then
+            button.Visible = false
+            leftColumn.Size = UDim2.new(1, 0, 0, 0)
+            rightColumn.Visible = false
+            columns.Size = UDim2.new(1, 0, 0, 0)
+        end
         local tab = setmetatable({
             Title = tabOptions.Title or "Tab", Button = button, Indicator = indicator,
             Label = label, Page = page, Columns = columns, LeftColumn = leftColumn,
@@ -1956,11 +1982,11 @@ function Noir:CreateWindow(options)
     if workspace.CurrentCamera then
         workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(updateResponsiveScale)
     end
-    main.Size = UDim2.fromOffset(610, 480)
+    main.Size = UDim2.fromOffset(math.max(1, requestedWidth - 40), math.max(1, requestedHeight - 40))
     main.BackgroundTransparency = 0
     uiScale.Scale = targetScale * .965
     shadow.ImageTransparency = 1
-    tween(main, .42, {Size = UDim2.fromOffset(650, 520)}, Enum.EasingStyle.Back)
+    tween(main, .42, {Size = requestedSize}, Enum.EasingStyle.Back)
     tween(uiScale, .38, {Scale = targetScale}, Enum.EasingStyle.Quint)
     tween(shadow, .42, {ImageTransparency = .45}, Enum.EasingStyle.Quart)
     window:SetTheme(options.Theme or "Default")
