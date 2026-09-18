@@ -1,31 +1,13 @@
---[[
-    FERAL UI LIBRARY (extrait de Feral Hub GPO)
-    Version nettoyée et documentée
-    Basée sur le code décompilé de Feral Hub
-]]
-
 local Library = {}
 
--- ============================================================
--- SERVICES
--- ============================================================
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local CoreGui = game:GetService("CoreGui")
 
--- ============================================================
--- CONFIG STORAGE
--- ============================================================
 local ConfigFolder = "Feral"
 local ConfigsFolder = "Feral/Configs"
-local Controls = {
-    Toggles = {},
-    Sliders = {},
-    Dropdowns = {},
-    Keybinds = {},
-    Boxes = {},
-}
+local Controls = { Toggles = {}, Sliders = {}, Dropdowns = {}, Keybinds = {}, Boxes = {} }
 
 local function ensureFolder()
     if not isfolder("Feral") then makefolder("Feral") end
@@ -36,9 +18,6 @@ local function configKey(pageName, sectionName, controlTitle)
     return tostring(pageName) .. "||" .. tostring(sectionName) .. "||" .. tostring(controlTitle)
 end
 
--- ============================================================
--- COLOR SYSTEM
--- ============================================================
 local DefaultColors = {
     ["Border Color"] = Color3.fromRGB(131, 181, 255),
     ["Click Effect Color"] = Color3.fromRGB(230, 230, 230),
@@ -75,18 +54,11 @@ local DefaultColors = {
 
 local UIColor = setmetatable({}, {
     __index = DefaultColors,
-    __newindex = function(_, key, value)
-        rawset(DefaultColors, key, value)
-    end,
+    __newindex = function(_, key, value) rawset(DefaultColors, key, value) end,
 })
-
 getgenv().UIColor = UIColor
 
--- ============================================================
--- CONFIG API
--- ============================================================
 local ConfigAPI = {}
-
 function ConfigAPI.List()
     ensureFolder()
     local files = listfiles(ConfigsFolder)
@@ -97,42 +69,25 @@ function ConfigAPI.List()
     end
     return names
 end
-
 function ConfigAPI.Save(name)
     if not name or name == "" then return false, "No config name" end
     ensureFolder()
-    local data = {
-        Toggles = {}, Sliders = {}, Dropdowns = {},
-        Keybinds = {}, Boxes = {}, UITheme = DefaultColors,
-    }
-    for id, ctrl in pairs(Controls.Toggles) do
-        local ok, v = pcall(ctrl.Get); if ok then data.Toggles[id] = v end
-    end
-    for id, ctrl in pairs(Controls.Sliders) do
-        local ok, v = pcall(ctrl.Get); if ok then data.Sliders[id] = v end
-    end
-    for id, ctrl in pairs(Controls.Dropdowns) do
-        local ok, v = pcall(ctrl.Get); if ok then data.Dropdowns[id] = v end
-    end
-    for id, ctrl in pairs(Controls.Keybinds) do
-        local ok, v = pcall(ctrl.Get); if ok then data.Keybinds[id] = v end
-    end
-    for id, ctrl in pairs(Controls.Boxes) do
-        local ok, v = pcall(ctrl.Get); if ok then data.Boxes[id] = v end
-    end
+    local data = { Toggles = {}, Sliders = {}, Dropdowns = {}, Keybinds = {}, Boxes = {}, UITheme = DefaultColors }
+    for id, ctrl in pairs(Controls.Toggles) do local ok, v = pcall(ctrl.Get); if ok then data.Toggles[id] = v end end
+    for id, ctrl in pairs(Controls.Sliders) do local ok, v = pcall(ctrl.Get); if ok then data.Sliders[id] = v end end
+    for id, ctrl in pairs(Controls.Dropdowns) do local ok, v = pcall(ctrl.Get); if ok then data.Dropdowns[id] = v end end
+    for id, ctrl in pairs(Controls.Keybinds) do local ok, v = pcall(ctrl.Get); if ok then data.Keybinds[id] = v end end
+    for id, ctrl in pairs(Controls.Boxes) do local ok, v = pcall(ctrl.Get); if ok then data.Boxes[id] = v end end
     local ok, err = pcall(function()
         writefile(ConfigsFolder .. "/" .. name .. ".json", HttpService:JSONEncode(data))
     end)
     return ok, err
 end
-
 function ConfigAPI.Load(name)
     if not name or name == "" then return false, "No config name" end
     local path = ConfigsFolder .. "/" .. name .. ".json"
     if not isfile(path) then return false, "Config not found" end
-    local ok, data = pcall(function()
-        return HttpService:JSONDecode(readfile(path))
-    end)
+    local ok, data = pcall(function() return HttpService:JSONDecode(readfile(path)) end)
     if not ok or type(data) ~= "table" then return false, "Invalid config" end
     local function apply(store, dataTable)
         if not dataTable then return end
@@ -148,7 +103,6 @@ function ConfigAPI.Load(name)
     apply(Controls.Boxes, data.Boxes)
     return true
 end
-
 function ConfigAPI.Delete(name)
     if not name or name == "" then return false, "No config name" end
     local path = ConfigsFolder .. "/" .. name .. ".json"
@@ -156,12 +110,9 @@ function ConfigAPI.Delete(name)
     local ok, err = pcall(delfile, path)
     return ok, err
 end
-
 getgenv().FeralConfig = ConfigAPI
 
--- ============================================================
--- NOTIFICATIONS
--- ============================================================
+-- Notifications
 local NotiGui = Instance.new("ScreenGui")
 NotiGui.Name = "Feral Notification"
 NotiGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -291,7 +242,6 @@ function Library:CreateMain(opts)
     opts = opts or {}
     local title = tostring(opts.Title) or "Feral"
     local desc = opts.Desc or ""
-    getgenv().MainDesc = desc
 
     local gui = Instance.new("ScreenGui")
     gui.Name = "Feral GUI"
@@ -299,7 +249,6 @@ function Library:CreateMain(opts)
     gui.Parent = CoreGui
     getgenv().GUI = gui
 
-    -- Drag function
     local function makeDraggable(handle, target)
         local dragging, dragInput, dragStart, startPos
         handle.InputBegan:Connect(function(input)
@@ -309,9 +258,7 @@ function Library:CreateMain(opts)
                 dragStart = input.Position
                 startPos = target.Position
                 input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        dragging = false
-                    end
+                    if input.UserInputState == Enum.UserInputState.End then dragging = false end
                 end)
             end
         end)
@@ -332,7 +279,6 @@ function Library:CreateMain(opts)
         end)
     end
 
-    -- Main container
     local main = Instance.new("Frame")
     main.Name = "Main"
     main.BackgroundTransparency = 1
@@ -342,7 +288,6 @@ function Library:CreateMain(opts)
     main.Parent = gui
     makeDraggable(main, main)
 
-    -- Border image
     local border = Instance.new("ImageLabel")
     border.Name = "MainBorder"
     border.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -355,7 +300,6 @@ function Library:CreateMain(opts)
     border.ImageColor3 = UIColor["Border Color"]
     border.Parent = main
 
-    -- Main background
     local mainBg = Instance.new("ImageLabel")
     mainBg.Name = "MainContainer"
     mainBg.BackgroundColor3 = UIColor["Background 3 Color"]
@@ -367,7 +311,6 @@ function Library:CreateMain(opts)
     mainCorner.CornerRadius = UDim.new(0, 4)
     mainCorner.Parent = mainBg
 
-    -- Top bar
     local topBar = Instance.new("Frame")
     topBar.Name = "TopMain"
     topBar.BackgroundTransparency = 1
@@ -395,7 +338,6 @@ function Library:CreateMain(opts)
     titleLabel.Text = "Feral " .. desc
     titleLabel.Parent = topBar
 
-    -- Pages container
     local pagesContainer = Instance.new("Frame")
     pagesContainer.Name = "PagesContainer"
     pagesContainer.BackgroundTransparency = 1
@@ -403,7 +345,6 @@ function Library:CreateMain(opts)
     pagesContainer.Size = UDim2.new(1, 0, 1, -30)
     pagesContainer.Parent = mainBg
 
-    -- Sidebar (page list)
     local sidebar = Instance.new("Frame")
     sidebar.Name = "Sidebar"
     sidebar.Position = UDim2.new(0, 5, 0, 0)
@@ -420,8 +361,8 @@ function Library:CreateMain(opts)
     sidebarScroll.Name = "ControlList"
     sidebarScroll.Active = true
     sidebarScroll.BackgroundTransparency = 1
-    sidebarScroll.Position = UDim2.new(0, 0, 0, 30)
-    sidebarScroll.Size = UDim2.new(1, -5, 1, -30)
+    sidebarScroll.Position = UDim2.new(0, 0, 0, 5)
+    sidebarScroll.Size = UDim2.new(1, -5, 1, -10)
     sidebarScroll.ScrollBarThickness = 5
     sidebarScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
     sidebarScroll.Parent = sidebar
@@ -435,7 +376,6 @@ function Library:CreateMain(opts)
         sidebarScroll.CanvasSize = UDim2.new(0, 0, 0, sidebarLayout.AbsoluteContentSize.Y + 5)
     end)
 
-    -- Page display
     local pageDisplay = Instance.new("Frame")
     pageDisplay.Name = "PageDisplay"
     pageDisplay.BackgroundTransparency = 1
@@ -444,28 +384,19 @@ function Library:CreateMain(opts)
     pageDisplay.Size = UDim2.new(0, 435, 1, 0)
     pageDisplay.Parent = pagesContainer
 
-    local pageLayout = Instance.new("UIPageLayout")
-    pageLayout.FillDirection = Enum.FillDirection.Vertical
-    pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    pageLayout.EasingDirection = Enum.EasingDirection.InOut
-    pageLayout.EasingStyle = Enum.EasingStyle.Quart
-    pageLayout.Padding = UDim.new(0, 10)
-    pageLayout.TweenTime = UIColor["Tween Animation 1 Speed"]
-    pageLayout.ScrollWheelInputEnabled = false
-    pageLayout.Parent = pageDisplay
-
-    -- ========================================================
-    -- PAGE CREATION
-    -- ========================================================
     local pageCount = 0
+    local pages = {}
+    local currentPage = nil
 
+    -- ========================================================
+    -- CREATE PAGE
+    -- ========================================================
     function main:CreatePage(opts)
         opts = opts or {}
         local pageName = tostring(opts.Page_Name)
-        local pageTitle = tostring(opts.Page_Title)
+        local pageTitle = tostring(opts.Page_Title or pageName)
         pageCount = pageCount + 1
 
-        -- Sidebar button
         local btnFrame = Instance.new("Frame")
         btnFrame.Name = pageName .. "_Control"
         btnFrame.BackgroundTransparency = 1
@@ -473,14 +404,7 @@ function Library:CreateMain(opts)
         btnFrame.LayoutOrder = pageCount
         btnFrame.Parent = sidebarScroll
 
-        local btnBg = Instance.new("Frame")
-        btnBg.BackgroundTransparency = 1
-        btnBg.Position = UDim2.new(0, 5, 0, 0)
-        btnBg.Size = UDim2.new(1, -5, 1, 0)
-        btnBg.Parent = btnFrame
-
         local btnLabel = Instance.new("TextLabel")
-        btnLabel.Name = "PageTitle"
         btnLabel.BackgroundTransparency = 1
         btnLabel.Position = UDim2.new(0, 15, 0, 0)
         btnLabel.Size = UDim2.new(1, -15, 1, 0)
@@ -489,22 +413,20 @@ function Library:CreateMain(opts)
         btnLabel.TextSize = 14
         btnLabel.TextXAlignment = Enum.TextXAlignment.Left
         btnLabel.TextColor3 = UIColor["GUI Text Color"]
-        btnLabel.Parent = btnBg
+        btnLabel.Parent = btnFrame
 
         local btnClick = Instance.new("TextButton")
-        btnClick.Name = "PageButton"
         btnClick.BackgroundTransparency = 1
         btnClick.Size = UDim2.new(1, 0, 1, 0)
         btnClick.Text = ""
         btnClick.Parent = btnFrame
 
-        -- Page content
         local pageFrame = Instance.new("Frame")
         pageFrame.Name = "Page_" .. pageCount
         pageFrame.BackgroundColor3 = UIColor["Background 1 Color"]
         pageFrame.BackgroundTransparency = UIColor["Background 1 Transparency"]
         pageFrame.Size = UDim2.new(0, 435, 0, 325)
-        pageFrame.LayoutOrder = pageCount
+        pageFrame.Visible = false
         pageFrame.Parent = pageDisplay
 
         local pageCorner = Instance.new("UICorner")
@@ -512,7 +434,6 @@ function Library:CreateMain(opts)
         pageCorner.Parent = pageFrame
 
         local pageHeader = Instance.new("TextLabel")
-        pageHeader.Name = "PageHeader"
         pageHeader.BackgroundTransparency = 1
         pageHeader.Position = UDim2.new(0, 5, 0, 0)
         pageHeader.Size = UDim2.new(1, 0, 0, 25)
@@ -524,7 +445,6 @@ function Library:CreateMain(opts)
         pageHeader.Parent = pageFrame
 
         local pageScroll = Instance.new("ScrollingFrame")
-        pageScroll.Name = "PageList"
         pageScroll.Active = true
         pageScroll.BackgroundTransparency = 1
         pageScroll.Position = UDim2.new(0, 5, 0, 30)
@@ -543,11 +463,18 @@ function Library:CreateMain(opts)
         end)
 
         btnClick.MouseButton1Click:Connect(function()
-            pageLayout:JumpTo(pageFrame)
+            for _, p in pairs(pages) do p.Frame.Visible = false end
+            pageFrame.Visible = true
+            currentPage = pageName
         end)
 
-        -- Page object
+        if not currentPage then
+            pageFrame.Visible = true
+            currentPage = pageName
+        end
+
         local pageObj = {}
+        pages[pageName] = { Frame = pageFrame }
 
         function pageObj.CreateSection(sectionTitle)
             local sectionName = tostring(sectionTitle)
@@ -570,7 +497,6 @@ function Library:CreateMain(opts)
             sectionHeader.Parent = sectionFrame
 
             local sectionTitle = Instance.new("TextLabel")
-            sectionTitle.Name = "SectionTitle"
             sectionTitle.BackgroundTransparency = 1
             sectionTitle.Size = UDim2.new(1, 0, 1, 0)
             sectionTitle.Font = Enum.Font.GothamBold
@@ -580,7 +506,6 @@ function Library:CreateMain(opts)
             sectionTitle.Parent = sectionHeader
 
             local sectionList = Instance.new("Frame")
-            sectionList.Name = "SectionList"
             sectionList.BackgroundTransparency = 1
             sectionList.Size = UDim2.new(1, 0, 0, 0)
             sectionList.AutomaticSize = Enum.AutomaticSize.Y
@@ -596,95 +521,33 @@ function Library:CreateMain(opts)
                 sectionFrame.Size = UDim2.new(1, -5, 0, sectionLayout.AbsoluteContentSize.Y + 35)
             end)
 
-            -- Section object with controls
             local sectionObj = {}
             local pageId = pageName
             local sectionId = sectionName
 
-            -- ================================================
             -- TOGGLE
-            -- ================================================
             function sectionObj.CreateToggle(opts, callback)
                 opts = opts or {}
                 local controlTitle = tostring(opts.Title)
                 local desc = opts.Desc
                 local default = opts.Default
-                local hasKeybind = opts.Keybind or false
-                local defaultKey = opts.DefaultKey
-                local hasTextbox = opts.Textbox or false
-                local textboxPlaceholder = opts.TextboxPlaceholder or "Enter..."
-                local textboxDefault = opts.TextboxDefault or ""
-                local textboxCallback = opts.TextboxCallback or function() end
                 local callback = callback or function() end
-
                 local state = default
-                local keybind = defaultKey
 
                 local toggleFrame = Instance.new("Frame")
-                toggleFrame.Name = "ToggleFrame"
                 toggleFrame.BackgroundTransparency = 1
                 toggleFrame.Size = UDim2.new(1, 0, 0, 0)
                 toggleFrame.AutomaticSize = Enum.AutomaticSize.Y
                 toggleFrame.Parent = sectionList
 
                 local inner = Instance.new("Frame")
-                inner.Name = "TogFrame"
                 inner.BackgroundTransparency = 1
                 inner.Size = UDim2.new(1, -10, 0, 0)
                 inner.AutomaticSize = Enum.AutomaticSize.Y
                 inner.Position = UDim2.new(0, 5, 0, 0)
                 inner.Parent = toggleFrame
 
-                local checkbox = Instance.new("ImageLabel")
-                checkbox.Name = "Checkbox"
-                checkbox.AnchorPoint = Vector2.new(1, 0.5)
-                checkbox.BackgroundTransparency = 1
-                checkbox.Position = UDim2.new(1, -5, 0.5, 3)
-                checkbox.Size = UDim2.new(0, 25, 0, 25)
-                checkbox.Image = "rbxassetid://4552505888"
-                checkbox.ImageColor3 = UIColor["Toggle Border Color"]
-                checkbox.Parent = inner
-
-                local check = Instance.new("ImageLabel")
-                check.Name = "Check"
-                check.AnchorPoint = Vector2.new(0, 1)
-                check.BackgroundTransparency = 1
-                check.Position = UDim2.new(0, 0, 1, 0)
-                check.Size = UDim2.new(0, 0, 0, 0)
-                check.Image = "rbxassetid://4555411759"
-                check.ImageColor3 = UIColor["Toggle Checked Color"]
-                check.Parent = checkbox
-
-                local titleLabel = Instance.new("TextLabel")
-                titleLabel.Name = "ToggleTitle"
-                titleLabel.BackgroundTransparency = 1
-                titleLabel.Position = UDim2.new(0, 10, 0, desc and 0 or 5)
-                titleLabel.Size = UDim2.new(1, -50, 0, 20)
-                titleLabel.Font = Enum.Font.GothamBlack
-                titleLabel.Text = controlTitle
-                titleLabel.TextSize = 14
-                titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-                titleLabel.TextColor3 = UIColor["GUI Text Color"]
-                titleLabel.Parent = inner
-
-                if desc then
-                    local descLabel = Instance.new("TextLabel")
-                    descLabel.Name = "ToggleDesc"
-                    descLabel.BackgroundTransparency = 1
-                    descLabel.Position = UDim2.new(0, 15, 0, 20)
-                    descLabel.Size = UDim2.new(1, -60, 0, 0)
-                    descLabel.Font = Enum.Font.GothamBlack
-                    descLabel.Text = desc
-                    descLabel.TextSize = 13
-                    descLabel.TextWrapped = true
-                    descLabel.TextXAlignment = Enum.TextXAlignment.Left
-                    descLabel.TextColor3 = UIColor["Toggle Desc Color"]
-                    descLabel.AutomaticSize = Enum.AutomaticSize.Y
-                    descLabel.Parent = inner
-                end
-
                 local bg = Instance.new("Frame")
-                bg.Name = "ToggleBg"
                 bg.Size = UDim2.new(1, 0, 1, 6)
                 bg.BackgroundColor3 = UIColor["Background 1 Color"]
                 bg.BackgroundTransparency = UIColor["Background 1 Transparency"]
@@ -695,12 +558,59 @@ function Library:CreateMain(opts)
                 bgCorner.CornerRadius = UDim.new(0, 4)
                 bgCorner.Parent = bg
 
+                local titleLabel = Instance.new("TextLabel")
+                titleLabel.BackgroundTransparency = 1
+                titleLabel.Position = UDim2.new(0, 10, 0, desc and 0 or 5)
+                titleLabel.Size = UDim2.new(1, -50, 0, 20)
+                titleLabel.Font = Enum.Font.GothamBlack
+                titleLabel.Text = controlTitle
+                titleLabel.TextSize = 14
+                titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+                titleLabel.TextColor3 = UIColor["GUI Text Color"]
+                titleLabel.ZIndex = 2
+                titleLabel.Parent = inner
+
+                if desc then
+                    local descLabel = Instance.new("TextLabel")
+                    descLabel.BackgroundTransparency = 1
+                    descLabel.Position = UDim2.new(0, 15, 0, 20)
+                    descLabel.Size = UDim2.new(1, -60, 0, 0)
+                    descLabel.Font = Enum.Font.GothamBlack
+                    descLabel.Text = desc
+                    descLabel.TextSize = 13
+                    descLabel.TextWrapped = true
+                    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    descLabel.TextColor3 = UIColor["Toggle Desc Color"]
+                    descLabel.AutomaticSize = Enum.AutomaticSize.Y
+                    descLabel.ZIndex = 2
+                    descLabel.Parent = inner
+                end
+
+                local checkbox = Instance.new("ImageLabel")
+                checkbox.AnchorPoint = Vector2.new(1, 0.5)
+                checkbox.BackgroundTransparency = 1
+                checkbox.Position = UDim2.new(1, -5, 0.5, 3)
+                checkbox.Size = UDim2.new(0, 25, 0, 25)
+                checkbox.Image = "rbxassetid://4552505888"
+                checkbox.ImageColor3 = UIColor["Toggle Border Color"]
+                checkbox.ZIndex = 3
+                checkbox.Parent = inner
+
+                local check = Instance.new("ImageLabel")
+                check.AnchorPoint = Vector2.new(0, 1)
+                check.BackgroundTransparency = 1
+                check.Position = UDim2.new(0, 0, 1, 0)
+                check.Size = UDim2.new(0, 0, 0, 0)
+                check.Image = "rbxassetid://4555411759"
+                check.ImageColor3 = UIColor["Toggle Checked Color"]
+                check.ZIndex = 3
+                check.Parent = checkbox
+
                 local click = Instance.new("TextButton")
-                click.Name = "ToggleButton"
                 click.BackgroundTransparency = 1
                 click.Size = UDim2.new(1, 0, 1, 6)
                 click.Text = ""
-                click.ZIndex = 2
+                click.ZIndex = 4
                 click.Parent = inner
 
                 local function update(value)
@@ -714,30 +624,18 @@ function Library:CreateMain(opts)
                 end
 
                 update(default)
-
-                click.MouseButton1Click:Connect(function()
-                    update(not state)
-                end)
+                click.MouseButton1Click:Connect(function() update(not state) end)
 
                 local id = configKey(pageId, sectionId, controlTitle)
                 Controls.Toggles[id] = {
                     Get = function() return state end,
-                    Set = function(v)
-                        if state == v then return end
-                        update(v)
-                    end,
+                    Set = function(v) if state ~= v then update(v) end end,
                 }
 
-                return {
-                    SetStage = update,
-                    SetKeybind = function(k) keybind = k end,
-                    GetKeybind = function() return keybind end,
-                }
+                return { SetStage = update }
             end
 
-            -- ================================================
             -- SLIDER
-            -- ================================================
             function sectionObj.CreateSlider(opts, callback)
                 opts = opts or {}
                 local controlTitle = tostring(opts.Title)
@@ -749,13 +647,11 @@ function Library:CreateMain(opts)
                 local sliderWidth = 400
 
                 local frame = Instance.new("Frame")
-                frame.Name = controlTitle .. "_Slider"
                 frame.BackgroundTransparency = 1
                 frame.Size = UDim2.new(1, 0, 0, 50)
                 frame.Parent = sectionList
 
                 local bg = Instance.new("Frame")
-                bg.Name = "SliderBg"
                 bg.Position = UDim2.new(0, 5, 0, 0)
                 bg.Size = UDim2.new(1, -10, 1, 0)
                 bg.BackgroundColor3 = UIColor["Background 1 Color"]
@@ -767,7 +663,6 @@ function Library:CreateMain(opts)
                 bgCorner.Parent = bg
 
                 local titleLabel = Instance.new("TextLabel")
-                titleLabel.Name = "SliderTitle"
                 titleLabel.BackgroundTransparency = 1
                 titleLabel.Position = UDim2.new(0, 10, 0, 0)
                 titleLabel.Size = UDim2.new(1, -160, 0, 25)
@@ -779,7 +674,6 @@ function Library:CreateMain(opts)
                 titleLabel.Parent = bg
 
                 local bar = Instance.new("Frame")
-                bar.Name = "SliderBar"
                 bar.AnchorPoint = Vector2.new(0.5, 0.5)
                 bar.Position = UDim2.new(0.5, 0, 0.5, 14)
                 bar.Size = UDim2.new(0, sliderWidth, 0, 6)
@@ -791,7 +685,6 @@ function Library:CreateMain(opts)
                 barCorner.Parent = bar
 
                 local fill = Instance.new("Frame")
-                fill.Name = "SliderFill"
                 fill.Size = UDim2.new(0, 0, 1, 0)
                 fill.BackgroundColor3 = UIColor["Slider Line Color"]
                 fill.BorderSizePixel = 0
@@ -802,19 +695,17 @@ function Library:CreateMain(opts)
                 fillCorner.Parent = fill
 
                 local valueBox = Instance.new("Frame")
-                valueBox.Name = "SliderValue"
                 valueBox.AnchorPoint = Vector2.new(1, 0)
                 valueBox.Position = UDim2.new(1, -10, 0, 5)
                 valueBox.Size = UDim2.new(0, 150, 0, 25)
                 valueBox.BackgroundColor3 = UIColor["Background 2 Color"]
-                valueBox.Parent = frame
+                valueBox.Parent = bg
 
                 local valueBoxCorner = Instance.new("UICorner")
                 valueBoxCorner.CornerRadius = UDim.new(0, 4)
                 valueBoxCorner.Parent = valueBox
 
                 local valueLabel = Instance.new("TextBox")
-                valueLabel.Name = "SliderValueText"
                 valueLabel.BackgroundTransparency = 1
                 valueLabel.Size = UDim2.new(1, 0, 1, 0)
                 valueLabel.Font = Enum.Font.GothamBold
@@ -824,7 +715,6 @@ function Library:CreateMain(opts)
                 valueLabel.Parent = valueBox
 
                 local dragging = false
-
                 local function setValue(value)
                     value = math.clamp(tonumber(value) or min, min, max)
                     local ratio = (value - min) / (max - min)
@@ -832,13 +722,11 @@ function Library:CreateMain(opts)
                     valueLabel.Text = precise and string.format("%.1f", value) or tostring(math.floor(value))
                     callback(value)
                 end
-
                 setValue(default)
 
                 local function updateFromMouse(x)
                     local relative = math.clamp(x - bar.AbsolutePosition.X, 0, sliderWidth)
-                    local ratio = relative / sliderWidth
-                    setValue(min + ratio * (max - min))
+                    setValue(min + (relative / sliderWidth) * (max - min))
                 end
 
                 bar.InputBegan:Connect(function(input)
@@ -847,22 +735,15 @@ function Library:CreateMain(opts)
                         updateFromMouse(input.Position.X)
                     end
                 end)
-
                 UserInputService.InputChanged:Connect(function(input)
                     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
                         updateFromMouse(input.Position.X)
                     end
                 end)
-
                 UserInputService.InputEnded:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        dragging = false
-                    end
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
                 end)
-
-                valueLabel.FocusLost:Connect(function()
-                    setValue(valueLabel.Text)
-                end)
+                valueLabel.FocusLost:Connect(function() setValue(valueLabel.Text) end)
 
                 local id = configKey(pageId, sectionId, controlTitle)
                 Controls.Sliders[id] = {
@@ -873,40 +754,26 @@ function Library:CreateMain(opts)
                 return { SetValue = setValue }
             end
 
-            -- ================================================
             -- DROPDOWN
-            -- ================================================
             function sectionObj.CreateDropdown(opts, callback)
                 opts = opts or {}
                 local controlTitle = tostring(opts.Title)
                 local list = opts.List or {}
-                local search = opts.Search or false
                 local multi = opts.Selected or false
                 local default = opts.Default
                 local callback = callback or function() end
-
-                local isArray = #list > 0
-                local selected
+                local selected = default
                 local values = {}
-
                 if multi then
-                    if isArray then
-                        for _, v in ipairs(list) do values[v] = false end
-                    else
-                        for k, v in pairs(list) do values[k] = not not v end
-                    end
-                else
-                    selected = default
+                    for _, v in ipairs(list) do values[v] = false end
                 end
 
                 local frame = Instance.new("Frame")
-                frame.Name = controlTitle .. "_Dropdown"
                 frame.BackgroundTransparency = 1
                 frame.Size = UDim2.new(1, 0, 0, 25)
                 frame.Parent = sectionList
 
                 local bg = Instance.new("Frame")
-                bg.Name = "DropdownBg"
                 bg.AnchorPoint = Vector2.new(0.5, 0.5)
                 bg.Position = UDim2.new(0.5, 0, 0.5, 0)
                 bg.Size = UDim2.new(1, -10, 1, 0)
@@ -920,7 +787,6 @@ function Library:CreateMain(opts)
                 bgCorner.Parent = bg
 
                 local header = Instance.new("Frame")
-                header.Name = "DropdownHeader"
                 header.Size = UDim2.new(1, 0, 0, 25)
                 header.BackgroundColor3 = UIColor["Background 2 Color"]
                 header.Parent = bg
@@ -930,7 +796,6 @@ function Library:CreateMain(opts)
                 headerCorner.Parent = header
 
                 local displayLabel = Instance.new("TextLabel")
-                displayLabel.Name = "DropdownDisplay"
                 displayLabel.BackgroundTransparency = 1
                 displayLabel.Position = UDim2.new(0, 10, 0, 0)
                 displayLabel.Size = UDim2.new(1, -40, 1, 0)
@@ -942,7 +807,6 @@ function Library:CreateMain(opts)
                 displayLabel.Parent = header
 
                 local icon = Instance.new("ImageLabel")
-                icon.Name = "DropdownIcon"
                 icon.AnchorPoint = Vector2.new(1, 0.5)
                 icon.BackgroundTransparency = 1
                 icon.Position = UDim2.new(1, -6, 0.5, 0)
@@ -952,14 +816,12 @@ function Library:CreateMain(opts)
                 icon.Parent = header
 
                 local clickBtn = Instance.new("TextButton")
-                clickBtn.Name = "DropdownButton"
                 clickBtn.BackgroundTransparency = 1
                 clickBtn.Size = UDim2.new(1, 0, 1, 0)
                 clickBtn.Text = ""
                 clickBtn.Parent = header
 
                 local optionsFrame = Instance.new("Frame")
-                optionsFrame.Name = "DropdownOptions"
                 optionsFrame.BackgroundTransparency = 1
                 optionsFrame.Position = UDim2.new(0, 0, 0, 25)
                 optionsFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -976,21 +838,14 @@ function Library:CreateMain(opts)
                 optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
                 optionsLayout.Parent = optionsScroll
 
-                optionsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                    optionsScroll.CanvasSize = UDim2.new(0, 0, 0, optionsLayout.AbsoluteContentSize.Y + 10)
-                end)
-
                 local opened = false
-
                 local function toggleOpen()
                     opened = not opened
-                    local targetSize = opened and UDim2.new(1, 0, 0, 170) or UDim2.new(1, 0, 0, 25)
-                    local frameSize = opened and UDim2.new(1, 0, 0, 200) or UDim2.new(1, 0, 0, 25)
                     TweenService:Create(optionsFrame, TweenInfo.new(UIColor["Tween Animation 2 Speed"]), {
                         Size = opened and UDim2.new(1, 0, 0, 170) or UDim2.new(1, 0, 0, 0),
                     }):Play()
                     TweenService:Create(frame, TweenInfo.new(UIColor["Tween Animation 2 Speed"]), {
-                        Size = frameSize,
+                        Size = opened and UDim2.new(1, 0, 0, 200) or UDim2.new(1, 0, 0, 25),
                     }):Play()
                     TweenService:Create(icon, TweenInfo.new(UIColor["Tween Animation 2 Speed"]), {
                         Rotation = opened and 90 or 0,
@@ -999,12 +854,11 @@ function Library:CreateMain(opts)
 
                 local function buildOptions()
                     for _, child in ipairs(optionsScroll:GetChildren()) do
-                        if child:IsA("Frame") then child:Destroy() end
+                        if child:IsA("TextButton") then child:Destroy() end
                     end
                     if not multi then
                         for _, value in ipairs(list) do
                             local opt = Instance.new("TextButton")
-                            opt.Name = tostring(value)
                             opt.BackgroundTransparency = 1
                             opt.Size = UDim2.new(1, 0, 0, 25)
                             opt.Text = tostring(value)
@@ -1022,7 +876,6 @@ function Library:CreateMain(opts)
                     else
                         for k, _ in pairs(values) do
                             local opt = Instance.new("TextButton")
-                            opt.Name = tostring(k)
                             opt.BackgroundTransparency = 1
                             opt.Size = UDim2.new(1, 0, 0, 25)
                             opt.Text = tostring(k)
@@ -1091,9 +944,7 @@ function Library:CreateMain(opts)
                 }
             end
 
-            -- ================================================
             -- KEYBIND
-            -- ================================================
             function sectionObj.CreateKeybind(opts, callback)
                 opts = opts or {}
                 local controlTitle = tostring(opts.Title) or "Keybind"
@@ -1102,7 +953,6 @@ function Library:CreateMain(opts)
                 local currentKey = default
 
                 local frame = Instance.new("Frame")
-                frame.Name = controlTitle .. "_Keybind"
                 frame.BackgroundTransparency = 1
                 frame.Size = UDim2.new(1, 0, 0, 35)
                 frame.Parent = sectionList
@@ -1150,7 +1000,6 @@ function Library:CreateMain(opts)
                 keyBtn.Parent = keyBox
 
                 local listening = false
-
                 keyBtn.MouseButton1Click:Connect(function()
                     if listening then return end
                     listening = true
@@ -1197,9 +1046,7 @@ function Library:CreateMain(opts)
                 }
             end
 
-            -- ================================================
-            -- BOX (Text input)
-            -- ================================================
+            -- BOX
             function sectionObj.CreateBox(opts, callback)
                 opts = opts or {}
                 local controlTitle = tostring(opts.Title)
@@ -1209,7 +1056,6 @@ function Library:CreateMain(opts)
                 local callback = callback or function() end
 
                 local frame = Instance.new("Frame")
-                frame.Name = controlTitle .. "_Box"
                 frame.BackgroundTransparency = 1
                 frame.Size = UDim2.new(1, 0, 0, 60)
                 frame.Parent = sectionList
@@ -1262,15 +1108,11 @@ function Library:CreateMain(opts)
 
                 if numeric then
                     textbox:GetPropertyChangedSignal("Text"):Connect(function()
-                        if not tonumber(textbox.Text) then
-                            textbox.Text = ""
-                        end
+                        if not tonumber(textbox.Text) then textbox.Text = "" end
                     end)
                 end
 
-                textbox.FocusLost:Connect(function()
-                    callback(textbox.Text)
-                end)
+                textbox.FocusLost:Connect(function() callback(textbox.Text) end)
 
                 local id = configKey(pageId, sectionId, controlTitle)
                 Controls.Boxes[id] = {
@@ -1289,16 +1131,13 @@ function Library:CreateMain(opts)
                 }
             end
 
-            -- ================================================
             -- BUTTON
-            -- ================================================
             function sectionObj.CreateButton(opts, callback)
                 opts = opts or {}
                 local controlTitle = tostring(opts.Title)
                 local callback = callback or function() end
 
                 local frame = Instance.new("Frame")
-                frame.Name = controlTitle .. "_Button"
                 frame.BackgroundTransparency = 1
                 frame.Size = UDim2.new(1, 0, 0, 25)
                 frame.Parent = sectionList
@@ -1334,22 +1173,19 @@ function Library:CreateMain(opts)
                 click.MouseButton1Click:Connect(callback)
             end
 
-            -- ================================================
             -- LABEL
-            -- ================================================
             function sectionObj.CreateLabel(opts)
                 opts = opts or {}
                 local controlTitle = tostring(opts.Title)
 
                 local frame = Instance.new("Frame")
                 frame.BackgroundTransparency = 1
-                frame.Size = UDim2.new(1, 0, 0, 0)
-                frame.AutomaticSize = Enum.AutomaticSize.Y
+                frame.Size = UDim2.new(1, 0, 0, 30)
                 frame.Parent = sectionList
 
                 local bg = Instance.new("Frame")
                 bg.Position = UDim2.new(0, 5, 0, 0)
-                bg.Size = UDim2.new(1, -10, 0, 30)
+                bg.Size = UDim2.new(1, -10, 1, 0)
                 bg.BackgroundColor3 = UIColor["Label Color"]
                 bg.Parent = frame
 
@@ -1359,7 +1195,7 @@ function Library:CreateMain(opts)
 
                 local label = Instance.new("TextLabel")
                 label.BackgroundTransparency = 1
-                label.Position = UDim2.new(0, 10, 0, 3)
+                label.Position = UDim2.new(0, 10, 0, 0)
                 label.Size = UDim2.new(1, -20, 1, 0)
                 label.Font = Enum.Font.GothamBlack
                 label.Text = controlTitle
