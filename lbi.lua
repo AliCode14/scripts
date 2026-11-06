@@ -994,7 +994,7 @@ GetUi = function()
         end;
         Library.UnloadUI = function()
             getgenv().SH_UI_Unloaded = true;
-            if SH_cursorConn then SH_cursorConn:Disconnect(); SH_cursorConn = nil; end;
+            if SH_cursorLoop then SH_cursorLoop:Disconnect(); SH_cursorLoop = nil; end;
             if UIContext.Gui then
                 UIContext.Gui:Destroy();
             end;
