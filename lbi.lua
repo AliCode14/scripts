@@ -6124,7 +6124,30 @@ GetUi = function()
                 SH_c.Parent = SH_d;
             end;
         end;
+        local function SH_buildThemeSection(SH_page)
+            local SH_bgSec = SH_page.CreateSection("UI Theme");
+            local SH_themeNames = {};
+            for _, SH_t in ipairs(getgenv().SH_UI_Themes or {}) do
+                SH_themeNames[#SH_themeNames + 1] = SH_t.Name;
+            end;
+            SH_bgSec.CreateDropdown({ Title = "Theme", List = SH_themeNames, Default = SH_themeNames[1], Search = false, Selected = false }, function(SH_pick)
+                L_731.SetThemePreset(tostring(SH_pick));
+                return ;
+            end);
+            local SH_keySec = SH_page.CreateSection("UI Interface");
+            SH_keySec.CreateKeybind({ Title = "Toggle UI Key", Default = Enum.KeyCode.RightShift }, function(SH_kc)
+                if typeof(SH_kc) == "EnumItem" and SH_kc.EnumType == Enum.KeyCode then
+                    getgenv().SH_UI_ToggleKey = SH_kc;
+                end;
+                return ;
+            end);
+            return ;
+        end;
+        L_731.AddThemeSection = SH_buildThemeSection;
         task.delay(0.25, function()
+            if getgenv().SH_THEME_SECTION_ADDED then
+                return ;
+            end;
             local SH_pageName = "Settings";
             for _, SH_c in ipairs(L_841:GetChildren()) do
                 if SH_c.Name == "Settings_Control" then
@@ -6133,22 +6156,8 @@ GetUi = function()
                 end;
             end;
             local SH_settingsPage = L_1095.CreatePage({ Page_Name = SH_pageName, Page_Title = SH_pageName });
-            local SH_bgSec = SH_settingsPage.CreateSection("Background");
-            local SH_themeNames = {};
-            for _, SH_t in ipairs(getgenv().SH_UI_Themes) do
-                SH_themeNames[#SH_themeNames + 1] = SH_t.Name;
-            end;
-            SH_bgSec.CreateDropdown({ Title = "Theme", List = SH_themeNames, Default = SH_themeNames[1], Search = false, Selected = false }, function(SH_pick)
-                L_731.SetThemePreset(tostring(SH_pick));
-                return ;
-            end);
-            local SH_keySec = SH_settingsPage.CreateSection("Interface");
-            SH_keySec.CreateKeybind({ Title = "Toggle UI Key", Default = Enum.KeyCode.RightShift }, function(SH_kc)
-                if typeof(SH_kc) == "EnumItem" and SH_kc.EnumType == Enum.KeyCode then
-                    getgenv().SH_UI_ToggleKey = SH_kc;
-                end;
-                return ;
-        end);
+            SH_buildThemeSection(SH_settingsPage);
+            return ;
         end);
         SH_forceCursor(true);
         local SH_firstTheme = getgenv().SH_UI_Themes and getgenv().SH_UI_Themes[1];
