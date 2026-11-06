@@ -483,7 +483,7 @@ GetUi = function()
     };
     -- >>> SH UI : mets ici l URL de base de tes images (GitHub raw, etc.)
     -- ex: "https://raw.githubusercontent.com/USER/REPO/main/"
-    getgenv().SH_UI_BaseURL = getgenv().SH_UI_BaseURL or "";
+    getgenv().SH_UI_BaseURL = getgenv().SH_UI_BaseURL or "https://raw.githubusercontent.com/AliCode14/scripts/main/";
 
     getgenv().SH_UI_Themes = getgenv().SH_UI_Themes or {
         {
@@ -1145,8 +1145,11 @@ GetUi = function()
                 end);
             end;
             local SH_blurPath = SH_GetBlurPath(L_853);
-            if SH_blurPath and isfile(SH_blurPath) then
-                SH_blurLayer.Image = getcustomasset(SH_blurPath);
+            local SH_blurOk, SH_blurImg = pcall(function()
+                return L_732.GetIMG(SH_blurPath);
+            end);
+            if SH_blurOk and SH_blurImg and SH_blurImg ~= "" then
+                SH_blurLayer.Image = SH_blurImg;
                 SH_blurLayer.ImageTransparency = (getgenv().UIColor["Background Blur Transparency"] or 0.7);
             else
                 SH_blurLayer.Image = "";
@@ -1250,8 +1253,11 @@ GetUi = function()
                 end);
             end;
             local SH_blurPath = SH_GetBlurPath(L_861);
-            if SH_blurPath and isfile(SH_blurPath) then
-                SH_blurLayer.Image = getcustomasset(SH_blurPath);
+            local SH_blurOk, SH_blurImg = pcall(function()
+                return L_732.GetIMG(SH_blurPath);
+            end);
+            if SH_blurOk and SH_blurImg and SH_blurImg ~= "" then
+                SH_blurLayer.Image = SH_blurImg;
                 SH_blurLayer.ImageTransparency = (getgenv().UIColor["Background Blur Transparency"] or 0.7);
             else
                 SH_blurLayer.Image = "";
@@ -5992,9 +5998,12 @@ GetUi = function()
             SH_container.Image = (SH_ok and SH_img) or "";
             local SH_blur = SH_container:FindFirstChild("SH_BlurLayer");
             local SH_blurPath = SH_GetBlurPath(SH_url);
-            if SH_blur then
-                if SH_blurPath and isfile(SH_blurPath) then
-                    SH_blur.Image = getcustomasset(SH_blurPath);
+            if SH_blur and SH_blurPath then
+                local SH_blurOk, SH_blurImg = pcall(function()
+                    return L_732.GetIMG(SH_blurPath);
+                end);
+                if SH_blurOk and SH_blurImg and SH_blurImg ~= "" then
+                    SH_blur.Image = SH_blurImg;
                     SH_blur.ImageTransparency = (getgenv().UIColor["Background Blur Transparency"] or 0.7);
                 else
                     SH_blur.Image = "";
