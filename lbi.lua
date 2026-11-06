@@ -478,17 +478,19 @@ GetUi = function()
     local L_731 = {};
     getgenv().SH_UI_Backgrounds = getgenv().SH_UI_Backgrounds or {
         { Name = "Default", Url = "" },
-        { Name = "JoJo 1", Url = "SH_bg1.jpg" },
-        { Name = "JoJo 2", Url = "SH_bg2.jpg" },
+        { Name = "JoJo 1", Url = "bg1.jpg" },
+        { Name = "JoJo 2", Url = "bg2.jpg" },
     };
     -- >>> SH UI : mets ici l URL de base de tes images (GitHub raw, etc.)
     -- ex: "https://raw.githubusercontent.com/USER/REPO/main/"
-    getgenv().SH_UI_BaseURL = getgenv().SH_UI_BaseURL or "https://raw.githubusercontent.com/AliCode14/scripts/main/";
+    if getgenv().SH_UI_BaseURL == nil or getgenv().SH_UI_BaseURL == "" then
+        getgenv().SH_UI_BaseURL = "https://raw.githubusercontent.com/AliCode14/scripts/main/";
+    end;
 
     getgenv().SH_UI_Themes = getgenv().SH_UI_Themes or {
         {
             Name = "JoJo 1",
-            Url = "SH_bg1.jpg",
+            Url = "bg1.jpg",
             Accent = Color3.fromRGB(247, 196, 32),
             Accent2 = Color3.fromRGB(46, 140, 60),
             BgMain = Color3.fromRGB(18, 16, 8),
@@ -503,7 +505,7 @@ GetUi = function()
         },
         {
             Name = "JoJo 2",
-            Url = "SH_bg2.jpg",
+            Url = "bg2.jpg",
             Accent = Color3.fromRGB(255, 111, 165),
             Accent2 = Color3.fromRGB(127, 231, 224),
             BgMain = Color3.fromRGB(22, 14, 26),
@@ -518,7 +520,7 @@ GetUi = function()
         },
         {
             Name = "Zoro",
-            Url = "SH_bg3.jpg",
+            Url = "bg3.jpg",
             Accent = Color3.fromRGB(70, 200, 110),
             Accent2 = Color3.fromRGB(30, 120, 70),
             BgMain = Color3.fromRGB(10, 18, 12),
@@ -533,7 +535,7 @@ GetUi = function()
         },
         {
             Name = "Luffy Gear 5",
-            Url = "SH_bg4.jpg",
+            Url = "bg4.jpg",
             Accent = Color3.fromRGB(255, 235, 180),
             Accent2 = Color3.fromRGB(230, 60, 60),
             BgMain = Color3.fromRGB(20, 16, 12),
@@ -565,10 +567,29 @@ GetUi = function()
             end;
         end;
         if type(L_735) == "string" and string.find(L_735, "^https?://") then
-            local SH_name = "SH_cache_" .. string.sub(string.gsub(L_735, "[^%w]", "_"), -60) .. ".png";
             local SH_ok, SH_uri = pcall(function()
-                if not isfile(SH_name) then
-                    local SH_data = game:HttpGet(L_735);
+                local SH_data = game:HttpGet(L_735);
+                if type(SH_data) ~= "string" or #SH_data == 0 then
+                    return nil;
+                end;
+                local SH_sig = string.sub(SH_data, 1, 3);
+                if SH_sig ~= string.char(255, 216, 255) and string.sub(SH_data, 1, 3) ~= string.char(137, 80, 78) then
+                    return nil;
+                end;
+                local SH_ext = ".png";
+                if string.sub(SH_data, 1, 2) == string.char(255, 216) then
+                    SH_ext = ".jpg";
+                end;
+                local SH_key = string.sub(string.gsub(L_735, "[^%w]", "_"), -60);
+                local SH_name = "SH_cache_" .. SH_key .. SH_ext;
+                local SH_valid = false;
+                if isfile(SH_name) then
+                    local SH_old = readfile(SH_name);
+                    if type(SH_old) == "string" and #SH_old > 16 and string.sub(SH_old, 1, 3) == string.sub(SH_data, 1, 3) then
+                        SH_valid = true;
+                    end;
+                end;
+                if not SH_valid then
                     writefile(SH_name, SH_data);
                 end;
                 return getcustomasset(SH_name);
@@ -5970,6 +5991,10 @@ GetUi = function()
             end;
             return ;
         end);
+        local SH_firstTheme = getgenv().SH_UI_Themes and getgenv().SH_UI_Themes[1];
+        if SH_firstTheme then
+            pcall(function() L_731.SetThemePreset(SH_firstTheme.Name) end);
+        end;
         return L_1095;
     end;
     L_731.SetBackground = function(SH_url)
