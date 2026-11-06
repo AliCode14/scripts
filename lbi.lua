@@ -1471,12 +1471,33 @@ GetUi = function()
             return ;
         end;
 
+        local SH_cursorConn = nil;
+        local function SH_forceCursor(SH_on)
+            if SH_on then
+                if not SH_cursorConn then
+                    SH_cursorConn = game:GetService("RunService").RenderStepped:Connect(function()
+                        local SH_uis = game:GetService("UserInputService");
+                        if not SH_uis.MouseIconEnabled then
+                            SH_uis.MouseIconEnabled = true;
+                        end;
+                        if SH_uis.MouseBehavior ~= Enum.MouseBehavior.Default then
+                            SH_uis.MouseBehavior = Enum.MouseBehavior.Default;
+                        end;
+                    end);
+                end;
+            elseif SH_cursorConn then
+                SH_cursorConn:Disconnect();
+                SH_cursorConn = nil;
+            end;
+            return ;
+        end;
         local function SH_SetOpen(SH_open, SH_instant)
             if not L_833 or not L_833.Parent then return ; end;
             SH_isOpen = SH_open;
             SH_closeToken = SH_closeToken + 1;
             local SH_token = SH_closeToken;
             if SH_open then
+                SH_forceCursor(true);
                 SH_ClampToScreen(L_833);
                 L_833.Visible = true;
                 if SH_instant then
@@ -1492,6 +1513,7 @@ GetUi = function()
                     return ;
                 end;
                 SH_tween:Create(SH_MainScale, TweenInfo.new(0.18, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0.82 }):Play();
+                SH_forceCursor(false);
                 task.delay(0.19, function()
                     if SH_token == SH_closeToken then
                         L_833.Visible = false;
@@ -1505,6 +1527,7 @@ GetUi = function()
 
         L_731.UnloadUI = function()
             getgenv().SH_UI_Unloaded = true;
+            if SH_cursorConn then SH_cursorConn:Disconnect(); SH_cursorConn = nil; end;
             if L_732.Gui then
                 L_732.Gui:Destroy();
             end;
@@ -1667,7 +1690,7 @@ GetUi = function()
             return ;
         end);
         local SH_dragActive = false;
-        local SH_dragSaved = {};
+        local SH_dragBase = {};
         local SH_dragFadeInfo = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out);
         local function SH_collectFade(SH_d)
             local SH_t = {};
@@ -1693,6 +1716,7 @@ GetUi = function()
         end;
         local SH_dragGen = 0;
         getgenv().SH_UI_DragMode = function(SH_on)
+            SH_on = SH_on == true;
             if SH_on == SH_dragActive then
                 return ;
             end;
@@ -1707,7 +1731,9 @@ GetUi = function()
                         for _, SH_d in ipairs(SH_root:GetDescendants()) do
                             local SH_t = SH_collectFade(SH_d);
                             if next(SH_t) ~= nil then
-                                SH_dragSaved[SH_d] = SH_t;
+                                if SH_dragBase[SH_d] == nil then
+                                    SH_dragBase[SH_d] = SH_t;
+                                end;
                                 SH_applyFade(SH_d, SH_t, 1, SH_dragFadeInfo);
                             end;
                         end;
@@ -1723,12 +1749,11 @@ GetUi = function()
                         if L_836 then L_836.Visible = false end;
                         if L_849 then L_849.Visible = false end;
                     end;
-                    return ;
                 end);
             else
                 if L_836 then L_836.Visible = true end;
                 if L_849 then L_849.Visible = true end;
-                for SH_d, SH_t in pairs(SH_dragSaved) do
+                for SH_d, SH_t in pairs(SH_dragBase) do
                     if SH_d and SH_d.Parent then
                         for SH_prop, SH_val in pairs(SH_t) do
                             pcall(function()
@@ -1737,19 +1762,26 @@ GetUi = function()
                         end;
                     end;
                 end;
-                SH_dragSaved = {};
                 if SH_DragOutline then
                     L_733:Create(SH_DragStroke, TweenInfo.new(0.2), { Transparency = 1 }):Play();
                     task.delay(0.2, function()
                         if not SH_dragActive and SH_gen == SH_dragGen and SH_DragOutline then
                             SH_DragOutline.Visible = false;
                         end;
-                        return ;
                     end);
                 end;
             end;
             return ;
         end;
+        task.spawn(function()
+            while true do
+                task.wait(0.5);
+                if not SH_dragActive then
+                    if L_836 and not L_836.Visible then L_836.Visible = true end;
+                    if L_849 and not L_849.Visible then L_849.Visible = true end;
+                end;
+            end;
+        end);
         L_734.InputEnded:Connect(function(SH_input)
             if SH_input.UserInputType == Enum.UserInputType.MouseButton1 or SH_input.UserInputType == Enum.UserInputType.Touch then
                 if getgenv().SH_UI_DragMode then pcall(getgenv().SH_UI_DragMode, false); end;
@@ -4753,6 +4785,81 @@ GetUi = function()
                             end);
                             return ;
                         end,
+                        CreateTextInput = function(L_cfg)
+                            local cfg = L_cfg or {};
+                            local title = tostring(cfg.Title or "Input");
+                            local placeholder = tostring(cfg.Placeholder or "");
+                            local row = Instance.new(L_32);
+                            local corner = Instance.new("UICorner");
+                            local bg = Instance.new(L_32);
+                            local box = Instance.new("TextBox");
+                            row.Name = "TextInputFrame";
+                            row.Parent = L_1147;
+                            row.BackgroundTransparency = 1;
+                            row.Size = UDim2.new(1, 0, 0, 45);
+                            corner.CornerRadius = UDim.new(0, 10);
+                            corner.Parent = row;
+                            bg.Name = "Background1";
+                            bg.Parent = row;
+                            bg.AnchorPoint = Vector2.new(0.5, 0.5);
+                            bg.Position = UDim2.new(0.5, 0, 0.5, 0);
+                            bg.Size = UDim2.new(1, -10, 1, 0);
+                            bg.BackgroundColor3 = getgenv().UIColor["Background 2 Color"];
+                            bg.BackgroundTransparency = getgenv().UIColor["Background 1 Transparency"];
+                            table.insert(L_639["Background 1 Transparency"], function()
+                                bg.BackgroundTransparency = getgenv().UIColor["Background 1 Transparency"];
+                                return ;
+                            end);
+                            table.insert(L_639["Background 2 Color"], function()
+                                bg.BackgroundColor3 = getgenv().UIColor["Background 2 Color"];
+                                return ;
+                            end);
+                            local bgCorner = Instance.new("UICorner");
+                            bgCorner.CornerRadius = UDim.new(0, 10);
+                            bgCorner.Parent = bg;
+                            local lbl = Instance.new("TextLabel");
+                            lbl.Parent = bg;
+                            lbl.BackgroundTransparency = 1;
+                            lbl.Position = UDim2.new(0, 10, 0, 2);
+                            lbl.Size = UDim2.new(1, -20, 0, 16);
+                            lbl.Font = Enum.Font.GothamBold;
+                            lbl.TextSize = 13;
+                            lbl.TextXAlignment = Enum.TextXAlignment.Left;
+                            lbl.Text = title;
+                            lbl.TextColor3 = getgenv().UIColor[L_34];
+                            table.insert(L_639[L_34], function()
+                                lbl.TextColor3 = getgenv().UIColor[L_34];
+                                return ;
+                            end);
+                            box.Parent = bg;
+                            box.BackgroundTransparency = 1;
+                            box.Position = UDim2.new(0, 10, 0, 18);
+                            box.Size = UDim2.new(1, -20, 0, 22);
+                            box.Font = Enum.Font.Gotham;
+                            box.TextSize = 14;
+                            box.TextXAlignment = Enum.TextXAlignment.Left;
+                            box.PlaceholderText = placeholder;
+                            box.Text = tostring(cfg.Default or "");
+                            box.TextColor3 = getgenv().UIColor[L_34];
+                            box.PlaceholderColor3 = getgenv().UIColor["Placeholder Text Color"];
+                            table.insert(L_639[L_34], function()
+                                box.TextColor3 = getgenv().UIColor[L_34];
+                                return ;
+                            end);
+                            local changed = cfg.Callback;
+                            box.FocusLost:Connect(function()
+                                if changed then
+                                    pcall(changed, box.Text);
+                                end;
+                                return ;
+                            end);
+                            return {
+                                Value = box.Text,
+                                GetValue = function() return box.Text end,
+                                SetValue = function(v) box.Text = tostring(v or "") end,
+                                TextBox = box,
+                            };
+                        end,
                         CreateLabel = function(L_1340)
                             local L_1341 = tostring(L_1340.Title);
                             local L_1342 = Instance.new(L_32);
@@ -6009,6 +6116,7 @@ GetUi = function()
                 return ;
         end);
         end);
+        SH_forceCursor(true);
         local SH_firstTheme = getgenv().SH_UI_Themes and getgenv().SH_UI_Themes[1];
         if SH_firstTheme then
             pcall(function() L_731.SetThemePreset(SH_firstTheme.Name) end);
