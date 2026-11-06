@@ -890,9 +890,9 @@ GetUi = function()
         L_812.CornerRadius = UDim.new(1, 0);
         L_812.Name = "RuafimgCorner";
         L_812.Parent = L_811;
-        L_813.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script UI</font> " .. getgenv().TitleNameNoti;
+        L_813.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script Hub</font> " .. getgenv().TitleNameNoti;
         table.insert(L_639["Title Text Color"], function()
-            L_813.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script UI</font> " .. getgenv().TitleNameNoti;
+            L_813.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script Hub</font> " .. getgenv().TitleNameNoti;
             return ;
         end);
         L_813.Name = "TextLabelNoti";
@@ -1003,7 +1003,6 @@ GetUi = function()
             L_822.InputBegan:Connect(function(L_828)
                 if L_828.UserInputType == Enum.UserInputType.MouseButton1 or L_828.UserInputType == Enum.UserInputType.Touch then
                     L_824 = true;
-                    if getgenv().SH_UI_DragMode then pcall(getgenv().SH_UI_DragMode, true); end;
                     L_826 = L_828.Position;
                     L_827 = L_823.Position;
                     L_828.Changed:Connect(function()
@@ -1025,6 +1024,7 @@ GetUi = function()
             L_734.InputChanged:Connect(function(L_830)
                 if L_830 == L_825 and L_824 then
                     local L_831 = L_830.Position - L_826;
+                    if getgenv().SH_UI_DragMode and (L_831.X * L_831.X + L_831.Y * L_831.Y) > 16 then pcall(getgenv().SH_UI_DragMode, true); end;
                     local SH_cam = workspace.CurrentCamera;
                     local SH_vp = SH_cam and SH_cam.ViewportSize or Vector2.new(1920, 1080);
                     local SH_size = L_823.AbsoluteSize;
@@ -1094,10 +1094,10 @@ GetUi = function()
         end);
         L_732.ReloadMain = function(L_853)
             L_834.ImageColor3 = getgenv().UIColor["Title Text Color"];
-            L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script UI</font> " .. getgenv().MainDesc;
+            L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script Hub</font> " .. getgenv().MainDesc;
             table.insert(L_639["Title Text Color"], function()
                 L_834.ImageColor3 = getgenv().UIColor["Title Text Color"];
-                L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script UI</font> " .. getgenv().MainDesc;
+                L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script Hub</font> " .. getgenv().MainDesc;
                 return ;
             end);
             local L_854 = nil;
@@ -1215,10 +1215,10 @@ GetUi = function()
             return ;
         end;
         L_834.ImageColor3 = getgenv().UIColor["Title Text Color"];
-        L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script UI</font> " .. getgenv().MainDesc;
+        L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script Hub</font> " .. getgenv().MainDesc;
         table.insert(L_639["Title Text Color"], function()
             L_834.ImageColor3 = getgenv().UIColor["Title Text Color"];
-            L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script UI</font> " .. getgenv().MainDesc;
+            L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script Hub</font> " .. getgenv().MainDesc;
             return ;
         end);
         local L_860 = nil;
@@ -1395,9 +1395,9 @@ GetUi = function()
             L_838.TextColor3 = getgenv().UIColor["GUI Text Color"];
             return ;
         end);
-        L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script UI</font> " .. getgenv().MainDesc;
+        L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script Hub</font> " .. getgenv().MainDesc;
         table.insert(L_639["Title Text Color"], function()
-            L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script UI</font> " .. getgenv().MainDesc;
+            L_838.Text = "<font color=\"rgb(" .. (tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(L_732.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">Script Hub</font> " .. getgenv().MainDesc;
             return ;
         end);
         L_846.Name = "SettionMain";
@@ -1747,6 +1747,12 @@ GetUi = function()
             end;
             return ;
         end;
+        L_734.InputEnded:Connect(function(SH_input)
+            if SH_input.UserInputType == Enum.UserInputType.MouseButton1 or SH_input.UserInputType == Enum.UserInputType.Touch then
+                if getgenv().SH_UI_DragMode then pcall(getgenv().SH_UI_DragMode, false); end;
+            end;
+            return ;
+        end);
         L_734.InputBegan:Connect(function(SH_input, SH_processed)
             if SH_input.KeyCode == (getgenv().SH_UI_ToggleKey or Enum.KeyCode.RightShift) then
                 SH_SetOpen(not SH_isOpen);
@@ -5974,22 +5980,31 @@ GetUi = function()
                 SH_c.Parent = SH_d;
             end;
         end;
-        local SH_settingsPage = L_1095.CreatePage({ Page_Name = "Settings", Page_Title = "Settings" });
-        local SH_bgSec = SH_settingsPage.CreateSection("Background");
-        local SH_themeNames = {};
-        for _, SH_t in ipairs(getgenv().SH_UI_Themes) do
-            SH_themeNames[#SH_themeNames + 1] = SH_t.Name;
-        end;
-        SH_bgSec.CreateDropdown({ Title = "Theme", List = SH_themeNames, Default = SH_themeNames[1], Search = false, Selected = false }, function(SH_pick)
-            L_731.SetThemePreset(tostring(SH_pick));
-            return ;
-        end);
-        local SH_keySec = SH_settingsPage.CreateSection("Interface");
-        SH_keySec.CreateKeybind({ Title = "Toggle UI Key", Default = Enum.KeyCode.RightShift }, function(SH_kc)
-            if typeof(SH_kc) == "EnumItem" and SH_kc.EnumType == Enum.KeyCode then
-                getgenv().SH_UI_ToggleKey = SH_kc;
+        task.delay(0.25, function()
+            local SH_pageName = "Settings";
+            for _, SH_c in ipairs(L_841:GetChildren()) do
+                if SH_c.Name == "Settings_Control" then
+                    SH_pageName = "UI Settings";
+                    break;
+                end;
             end;
-            return ;
+            local SH_settingsPage = L_1095.CreatePage({ Page_Name = SH_pageName, Page_Title = SH_pageName });
+            local SH_bgSec = SH_settingsPage.CreateSection("Background");
+            local SH_themeNames = {};
+            for _, SH_t in ipairs(getgenv().SH_UI_Themes) do
+                SH_themeNames[#SH_themeNames + 1] = SH_t.Name;
+            end;
+            SH_bgSec.CreateDropdown({ Title = "Theme", List = SH_themeNames, Default = SH_themeNames[1], Search = false, Selected = false }, function(SH_pick)
+                L_731.SetThemePreset(tostring(SH_pick));
+                return ;
+            end);
+            local SH_keySec = SH_settingsPage.CreateSection("Interface");
+            SH_keySec.CreateKeybind({ Title = "Toggle UI Key", Default = Enum.KeyCode.RightShift }, function(SH_kc)
+                if typeof(SH_kc) == "EnumItem" and SH_kc.EnumType == Enum.KeyCode then
+                    getgenv().SH_UI_ToggleKey = SH_kc;
+                end;
+                return ;
+        end);
         end);
         local SH_firstTheme = getgenv().SH_UI_Themes and getgenv().SH_UI_Themes[1];
         if SH_firstTheme then
