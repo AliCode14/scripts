@@ -1477,30 +1477,29 @@ GetUi = function()
         local SH_rmbHeld = false;
         local SH_cameraMode = false;
         local SH_uisRef = game:GetService("UserInputService");
+        local function SH_applyCursorState()
+            if SH_cameraMode or SH_rmbHeld then
+                SH_uisRef.MouseBehavior = Enum.MouseBehavior.LockCenter;
+                SH_uisRef.MouseIconEnabled = false;
+            else
+                SH_uisRef.MouseBehavior = Enum.MouseBehavior.Default;
+                SH_uisRef.MouseIconEnabled = true;
+            end;
+            return ;
+        end;
         local function SH_forceCursor(SH_on)
             if SH_on then
                 if SH_origBehavior == nil then
                     SH_origBehavior = SH_uisRef.MouseBehavior;
                     SH_origIcon = SH_uisRef.MouseIconEnabled;
                 end;
-                if not SH_cursorConn then
-                    SH_cursorConn = game:GetService("RunService").RenderStepped:Connect(function()
-                        if not SH_uisRef.MouseIconEnabled then
-                            SH_uisRef.MouseIconEnabled = true;
-                        end;
-                        if SH_uisRef.MouseBehavior ~= Enum.MouseBehavior.Default then
-                            SH_uisRef.MouseBehavior = Enum.MouseBehavior.Default;
-                        end;
-                    end);
-                end;
-            elseif SH_cursorConn then
-                SH_cursorConn:Disconnect();
-                SH_cursorConn = nil;
-                if SH_origBehavior then
-                    SH_uisRef.MouseBehavior = SH_origBehavior;
-                end;
+                SH_applyCursorState();
+            else
+                SH_uisRef.MouseBehavior = SH_origBehavior or Enum.MouseBehavior.Default;
                 if SH_origIcon ~= nil then
                     SH_uisRef.MouseIconEnabled = SH_origIcon;
+                else
+                    SH_uisRef.MouseIconEnabled = true;
                 end;
             end;
             return ;
@@ -1508,12 +1507,23 @@ GetUi = function()
         SH_uisRef.InputBegan:Connect(function(SH_i)
             if SH_i.UserInputType == Enum.UserInputType.MouseButton2 then
                 SH_rmbHeld = true;
+                SH_applyCursorState();
+            elseif SH_i.UserInputType == Enum.UserInputType.MouseButton1 or SH_i.UserInputType == Enum.UserInputType.Touch then
+                if not (SH_cameraMode or SH_rmbHeld) then
+                    SH_applyCursorState();
+                end;
+            elseif SH_i.KeyCode == Enum.KeyCode.LeftAlt or SH_i.KeyCode == Enum.KeyCode.RightAlt or SH_i.KeyCode == Enum.KeyCode.Insert then
+                SH_cameraMode = not SH_cameraMode;
+                SH_applyCursorState();
             end;
+            return ;
         end);
         SH_uisRef.InputEnded:Connect(function(SH_i)
             if SH_i.UserInputType == Enum.UserInputType.MouseButton2 then
                 SH_rmbHeld = false;
+                SH_applyCursorState();
             end;
+            return ;
         end);
         local function SH_SetOpen(SH_open, SH_instant)
             if not L_833 or not L_833.Parent then return ; end;
