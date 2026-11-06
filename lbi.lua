@@ -87,9 +87,9 @@ RequirementsTracker.AddPreset = function(L_632, L_633, L_634)
     return ;
 end;
 GetUi = function()
-    if getgenv().Tvk and game.CoreGui:FindFirstChild("Script UI") then
+        if game.CoreGui:FindFirstChild("Script UI") or game.CoreGui:FindFirstChild("Script UI Notification") then
         for L_635, L_636 in ipairs(game.CoreGui:GetChildren()) do
-            if L_636.Name == "Script UI" then
+                if L_636.Name == "Script UI" or L_636.Name == "Script UI Notification" then
                 L_636:Destroy();
             end;
         end;
@@ -1691,10 +1691,13 @@ GetUi = function()
                 end);
             end;
         end;
+        local SH_dragGen = 0;
         getgenv().SH_UI_DragMode = function(SH_on)
             if SH_on == SH_dragActive then
                 return ;
             end;
+            SH_dragGen = SH_dragGen + 1;
+            local SH_gen = SH_dragGen;
             SH_dragActive = SH_on;
             if SH_on then
                 if L_836 then L_836.Visible = true end;
@@ -1716,7 +1719,7 @@ GetUi = function()
                     L_733:Create(SH_DragStroke, TweenInfo.new(0.25), { Transparency = 0.05 }):Play();
                 end;
                 task.delay(0.19, function()
-                    if SH_dragActive then
+                    if SH_dragActive and SH_gen == SH_dragGen then
                         if L_836 then L_836.Visible = false end;
                         if L_849 then L_849.Visible = false end;
                     end;
@@ -1738,7 +1741,7 @@ GetUi = function()
                 if SH_DragOutline then
                     L_733:Create(SH_DragStroke, TweenInfo.new(0.2), { Transparency = 1 }):Play();
                     task.delay(0.2, function()
-                        if not SH_dragActive and SH_DragOutline then
+                        if not SH_dragActive and SH_gen == SH_dragGen and SH_DragOutline then
                             SH_DragOutline.Visible = false;
                         end;
                         return ;
