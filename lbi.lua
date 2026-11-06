@@ -1413,6 +1413,7 @@ GetUi = function()
         end;
 
         local SH_cursorConn = nil;
+        local SH_cursorLoop = nil;
         local SH_origBehavior = nil;
         local SH_origIcon = nil;
         local SH_rmbHeld = false;
@@ -1435,7 +1436,19 @@ GetUi = function()
                     SH_origIcon = SH_uisRef.MouseIconEnabled;
                 end;
                 SH_applyCursorState();
+                -- keep the cursor visible while the menu is open: some games
+                -- re-lock the mouse every frame, so re-assert it continuously
+                if not SH_cursorLoop then
+                    SH_cursorLoop = game:GetService("RunService").RenderStepped:Connect(function()
+                        SH_applyCursorState();
+                        return ;
+                    end);
+                end;
             else
+                if SH_cursorLoop then
+                    SH_cursorLoop:Disconnect();
+                    SH_cursorLoop = nil;
+                end;
                 SH_uisRef.MouseBehavior = SH_origBehavior or Enum.MouseBehavior.Default;
                 if SH_origIcon ~= nil then
                     SH_uisRef.MouseIconEnabled = SH_origIcon;
