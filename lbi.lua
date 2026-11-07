@@ -917,6 +917,7 @@ GetUi = function()
         local SH_cursorConn = nil; local SH_cursorLoop = nil; local SH_origBehavior = nil; local SH_origIcon = nil; local SH_cameraMode = false; local SH_rmbHeld = false;
         local SH_uisRef = game:GetService("UserInputService");
         local function SH_applyCursorState()
+            if getgenv().SH_UI_NoCursorControl then return end;
             if SH_cameraMode or SH_rmbHeld then
                 SH_uisRef.MouseBehavior = Enum.MouseBehavior.LockCenter; SH_uisRef.MouseIconEnabled = false;
             else
@@ -925,6 +926,7 @@ GetUi = function()
             return
         end;
         local function SH_forceCursor(SH_on)
+            if getgenv().SH_UI_NoCursorControl then return end;
             if SH_on then
                 if SH_origBehavior == nil then
                     SH_origBehavior = SH_uisRef.MouseBehavior; SH_origIcon = SH_uisRef.MouseIconEnabled;
