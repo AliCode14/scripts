@@ -914,7 +914,7 @@ GetUi = function()
             SH_frame.Position = UDim2.new(SH_pos.X.Scale, SH_px - SH_pos.X.Scale * SH_vp.X, SH_pos.Y.Scale, SH_py - SH_pos.Y.Scale * SH_vp.Y);
             return
         end;
-        local SH_cursorConn = nil; local SH_cursorLoop = nil; local SH_origBehavior = nil; local SH_origIcon = nil; local SH_rmbHeld = false; local SH_cameraMode = false;
+        local SH_cursorConn = nil; local SH_cursorLoop = nil; local SH_origBehavior = nil; local SH_origIcon = nil; local SH_cameraMode = false; local SH_rmbHeld = false;
         local SH_uisRef = game:GetService("UserInputService");
         local function SH_applyCursorState()
             if SH_cameraMode or SH_rmbHeld then
@@ -929,17 +929,10 @@ GetUi = function()
                 if SH_origBehavior == nil then
                     SH_origBehavior = SH_uisRef.MouseBehavior; SH_origIcon = SH_uisRef.MouseIconEnabled;
                 end;
+                SH_cursorLoop = true;
                 SH_applyCursorState();
-                if not SH_cursorLoop then
-                    SH_cursorLoop = game:GetService("RunService").RenderStepped:Connect(function()
-                        SH_applyCursorState();
-                        return
-                    end);
-                end;
             else
-                if SH_cursorLoop then
-                    SH_cursorLoop:Disconnect(); SH_cursorLoop = nil;
-                end;
+                SH_cursorLoop = nil;
                 SH_uisRef.MouseBehavior = SH_origBehavior or Enum.MouseBehavior.Default;
                 if SH_origIcon ~= nil then
                     SH_uisRef.MouseIconEnabled = SH_origIcon;
@@ -966,6 +959,12 @@ GetUi = function()
                 SH_rmbHeld = false; SH_applyCursorState();
             end;
             return
+        end);
+        -- if the game locks the mouse outside of camera use, keep it free
+        SH_uisRef:GetPropertyChangedSignal("MouseBehavior"):Connect(function()
+            if SH_cursorLoop and not SH_cameraMode and not SH_rmbHeld and SH_uisRef.MouseBehavior ~= Enum.MouseBehavior.Default then
+                SH_uisRef.MouseBehavior = Enum.MouseBehavior.Default;
+            end;
         end);
         local function SH_SetOpen(SH_open, SH_instant)
             if not MainWindow or not MainWindow.Parent then return end;
@@ -994,7 +993,7 @@ GetUi = function()
         end;
         Library.UnloadUI = function()
             getgenv().SH_UI_Unloaded = true;
-            if SH_cursorLoop then SH_cursorLoop:Disconnect(); SH_cursorLoop = nil; end;
+            if SH_cursorLoop then pcall(function() game:GetService("RunService"):UnbindFromRenderStep("SH_CursorForce") end); SH_cursorLoop = nil; end;
             if UIContext.Gui then
                 UIContext.Gui:Destroy();
             end;
@@ -1321,6 +1320,11 @@ GetUi = function()
                 uiObject_845:JumpTo(page_1112);
                 return
             end);
+            -- the first tab is shown on startup: highlight its selected indicator
+            if pageOrder == 0 then
+                pageInLine_1107.Size = UDim2.new(1, -10, 1, -10);
+                page_1112.Visible = true;
+            end;
             return {
                 CreateSection = function(sectionTitle, requirements)
                     local pageValue_1145 = tostring(sectionTitle); local enabled_1146 = true;
