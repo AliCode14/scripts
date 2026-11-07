@@ -1174,7 +1174,7 @@ GetUi = function()
             return
         end);
         UserInputService.InputBegan:Connect(function(SH_input, SH_processed)
-            if SH_input.KeyCode == (getgenv().SH_UI_ToggleKey or Enum.KeyCode.RightShift) then
+            if SH_input.KeyCode == (getgenv().SH_UI_ToggleKey or Enum.KeyCode.K) then
                 SH_SetOpen(not SH_isOpen);
             end;
             return
@@ -3018,7 +3018,7 @@ GetUi = function()
                 return
             end);
             local SH_keySec = SH_page.CreateSection("UI Interface");
-            SH_keySec.CreateKeybind({ Title = "Toggle UI Key", Default = Enum.KeyCode.RightShift }, function(SH_kc)
+            SH_keySec.CreateKeybind({ Title = "Toggle UI Key", Default = getgenv().SH_UI_ToggleKey or Enum.KeyCode.K }, function(SH_kc)
                 if typeof(SH_kc) == "EnumItem" and SH_kc.EnumType == Enum.KeyCode then
                     getgenv().SH_UI_ToggleKey = SH_kc;
                 end;
